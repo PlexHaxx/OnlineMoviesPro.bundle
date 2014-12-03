@@ -1,4 +1,4 @@
-import urllib, re
+import re
 
 HTTP_HEADERS = {
 	'Host': '*.videomega.tv',
@@ -33,7 +33,7 @@ def MetadataObjectForURL(url):
 	req = HTTP.Request(url)
 	page_content = req.content
 	script_escaped = Regex('.*document.write\(unescape\(\"*(.*)\".*', Regex.IGNORECASE|Regex.MULTILINE).search(page_content).groups()[0]
-	javascript = urllib.unquote(script_escaped)
+	javascript = String.Unquote(script_escaped)
 	thumb = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', javascript)[0]
 	
 	return VideoClipObject(
@@ -49,7 +49,7 @@ def MediaObjectsForURL(url):
     req = HTTP.Request(url)
     page_content = req.content
     script_escaped = Regex('.*document.write\(unescape\(\"*(.*)\".*', Regex.IGNORECASE|Regex.MULTILINE).search(page_content).groups()[0]
-    javascript = urllib.unquote(script_escaped)
+    javascript = String.Unquote(script_escaped)
     video_url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', javascript)[1]
     
     return [
