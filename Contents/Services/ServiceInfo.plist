@@ -7,7 +7,7 @@
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://videomega.tv/</string>
+				<string>^http:\/\/(www\.)?onlinemovies\.pro\/.+</string>
 			</array>
 		</dict>
 	</dict>

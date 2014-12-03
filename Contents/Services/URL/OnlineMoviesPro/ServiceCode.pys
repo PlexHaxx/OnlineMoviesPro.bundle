@@ -1,29 +1,16 @@
-import re
-
 ########################################################################################
 def NormalizeURL(url):
 
-	return url.split('&')[0]
+	return url
 
 ########################################################################################
 def MetadataObjectForURL(url):
 
-	page = HTML.ElementFromURL(url)
+	html = HTML.ElementFromURL(url)
 
-	title = page.xpath("//meta[@name='description']/@content")
-	description = page.xpath("//meta[@name='description']/@content")[0]
-	thumb = page.xpath("//meta[@property='image']/text")
-
-	req = HTML.ElementFromURL(url)
-	title = req.xpath('//title/text()')[0]
-	title = title.replace('VideoMega.tv - ','',1)
-	title = title.replace(' | www.onlinemovies.pro','',1)
-
-	req = HTTP.Request(url)
-	page_content = req.content
-	script_escaped = Regex('.*document.write\(unescape\(\"*(.*)\".*', Regex.IGNORECASE|Regex.MULTILINE).search(page_content).groups()[0]
-	javascript = String.Unquote(script_escaped)
-	thumb = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', javascript)[0]
+	title = html.xpath('//h1[@itemprop="name"]//text()')[0].strip()
+	description = html.xpath('//p[contains(., " Plot:")]')[0].text_content().split(' Plot:')[-1].strip()
+	thumb = html.xpath('//meta[@itemprop="image"]/@content')[0]
 
 	return VideoClipObject(
 		title = title,
@@ -32,36 +19,10 @@ def MetadataObjectForURL(url):
 	)
 
 ########################################################################################
+@deferred
 def MediaObjectsForURL(url):
 
-	req = HTTP.Request(url)
-	page_content = req.content
-	script_escaped = Regex('.*document.write\(unescape\(\"*(.*)\".*', Regex.IGNORECASE|Regex.MULTILINE).search(page_content).groups()[0]
-	javascript = String.Unquote(script_escaped)
-	video_url = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', javascript)[1]
+	html = HTML.ElementFromURL(url)
+	url = html.xpath('//div[@class="video-embed"]/iframe[contains(@src, "videomega.tv")]/@src')[0]
 
-	return [
-		MediaObject(
-			video_resolution = '720',
-			container = Container.MP4,
-			audio_channels = 2,
-			video_codec = VideoCodec.H264,
-			audio_codec = AudioCodec.AAC,
-			optimized_for_streaming = True,
-			parts = [
-				PartObject(
-					key =
-						Callback(
-							PlayVideo,
-							url = video_url
-						)
-				)
-			]
-		)
-	]
-
-########################################################################################
-@indirect
-def PlayVideo(url):
-
-	return IndirectResponse(VideoClipObject, key = url)
+	return URLService.MediaObjectsForURL(url)
