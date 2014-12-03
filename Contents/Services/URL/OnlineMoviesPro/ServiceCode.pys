@@ -13,7 +13,6 @@ def MetadataObjectForURL(url):
 	title = page.xpath("//meta[@name='description']/@content")
 	description = page.xpath("//meta[@name='description']/@content")[0]
 	thumb = page.xpath("//meta[@property='image']/text")
-	ratingvalue = url
 
 	req = HTML.ElementFromURL(url)
 	title = req.xpath('//title/text()')[0]
@@ -29,8 +28,7 @@ def MetadataObjectForURL(url):
 	return VideoClipObject(
 		title = title,
 		summary = description,
-		thumb = thumb,
-		rating_key = ratingvalue
+		thumb = thumb
 	)
 
 ########################################################################################
